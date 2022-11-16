@@ -7,7 +7,7 @@
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
     </properties>
-    <groupId>bs_uebung.uebung08</groupId>
+    <groupId>Betriebssysteme.uebung08</groupId>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
