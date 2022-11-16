@@ -1,4 +1,5 @@
-/* import org.jgrapht.alg.cycle.HawickJamesSimpleCycles;
+import org.jgrapht.alg.cycle.CycleDetector;
+import org.jgrapht.alg.cycle.HawickJamesSimpleCycles;
 import org.jgrapht.alg.interfaces.CycleBasisAlgorithm;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -15,9 +16,9 @@ public class DeadlockDetector {
         DefaultDirectedGraph beispielGraph = erstelleBeispielGraph();
         DeadlockDetector dd = new DeadlockDetector(beispielGraph);
         System.out.println(
-            String.format("Analysiere den folgenden Zustand ... \r\n%s\r\n", dd.getZuteilungsSituation().toString())
+                String.format("Analysiere den folgenden Zustand ... \r\n%s\r\n", dd.getZuteilungsSituation().toString())
         );
-        if (dd.liegtDeadlockVor()) {
+        if (dd.liegtDeadlockVorUebung08()) {
             System.out.println("Der aktuelle Zustand enthält ein Deadlock!");
         } else {
             System.out.println("Der aktuelle Zustand ist Deadlock-frei!");
@@ -55,6 +56,11 @@ public class DeadlockDetector {
             }  while (nichtSackgasse());
         }
         return false;
+    }
+
+    boolean liegtDeadlockVorUebung08() {
+        CycleDetector cycleDetector = new CycleDetector(this.zuteilungsSituation);
+        return cycleDetector.detectCycles();
     }
 
     public boolean nichtSackgasse() {
@@ -118,4 +124,3 @@ public class DeadlockDetector {
         return zustand;
     }
 }
-*/

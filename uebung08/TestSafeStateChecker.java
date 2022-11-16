@@ -1,3 +1,4 @@
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -17,7 +18,8 @@ public class TestSafeStateChecker implements SafeStateChecker {
         ProzessZuteilung d = new ProzessZuteilung("D", 4, 7);
         int freieRessourcen = 2;
 
-        List<ProzessZuteilung> zuteilungsSituation = new ArrayList<>();
+        List<ProzessZuteilung> zuteilungsSituation = new LinkedList<>();
+
         zuteilungsSituation.add(a);
         zuteilungsSituation.add(b);
         zuteilungsSituation.add(c);
@@ -25,6 +27,7 @@ public class TestSafeStateChecker implements SafeStateChecker {
 
         t.printProcessTable(zuteilungsSituation, freieRessourcen);
         System.out.println("State is safe: " + t.isSafe(zuteilungsSituation, freieRessourcen));
+        // System.out.println("State is safe: " + t.isSafeRec(zuteilungsSituation, freieRessourcen));
 
     } // Ende main
 
@@ -90,37 +93,13 @@ public class TestSafeStateChecker implements SafeStateChecker {
             // wenn es noch gültige laufende Prozesse gibt
             if (p != null) {
 
-                int need = p.maximaleAnzahlRessourcen - p.anzahlAktuellerRessourcen;
+                // neue Anzahl freier Ressourcen berechnen
+                anzahlFreieRessourcen = p.anzahlAktuellerRessourcen + anzahlFreieRessourcen;
 
-                if (need >= anzahlFreieRessourcen) {
-                    p.anzahlAktuellerRessourcen += anzahlFreieRessourcen;
-                    anzahlFreieRessourcen = 0; // alle Ressourcen werden Prozess zugewiesen
+                // Prozess aktualisieren, da fertig
+                p.anzahlAktuellerRessourcen = 0;
+                p.maximaleAnzahlRessourcen = 0;
 
-                    // wenn dabei das Maximum erreicht wurde
-                    if (p.anzahlAktuellerRessourcen == p.maximaleAnzahlRessourcen) {
-
-                        // dann gebe die Ressourcen wieder frei
-                        anzahlFreieRessourcen += p.anzahlAktuellerRessourcen;
-
-                        // Prozess aktualisieren, da fertig
-                        p.anzahlAktuellerRessourcen = 0;
-                        p.maximaleAnzahlRessourcen = 0;
-                    }
-
-                } else { // wenn der need kleiner ist
-
-                    // muss nur ein Teil der freien Ressourcen (need) addiert werden
-                    p.anzahlAktuellerRessourcen += need;
-                    anzahlFreieRessourcen -= need;
-
-                    // da Maximum erreicht: Ressourcen wieder freigeben
-                    anzahlFreieRessourcen += p.anzahlAktuellerRessourcen;
-
-                    // Prozess aktualisieren, da fertig
-                    p.anzahlAktuellerRessourcen = 0;
-                    p.maximaleAnzahlRessourcen = 0;
-
-                }
                 printProcessTable(zuteilungsSituation, anzahlFreieRessourcen); // gebe Tabelle aus
             }
 
@@ -133,6 +112,43 @@ public class TestSafeStateChecker implements SafeStateChecker {
 
         }
     }
+
+    /**
+     * Prüft die Liste der Prozesszuteilung auf einen Safe-State mittels Rekursion
+     * @param zuteilungsSituation Liste mit der aktuellen Zuteilung aller Prozesse
+     * @param anzahlFreieRessourcen Anzahl der aktuell freien Ressourcen
+     * @return true, wenn es eine Folge von Schritten gibt,
+     * die alle Prozesse in einen Endzustand bringt (safe state), sonst false
+     */
+    public boolean isSafeRec(List<ProzessZuteilung> zuteilungsSituation, int anzahlFreieRessourcen){
+        if (zuteilungsSituation.isEmpty())
+            return true;
+        for (ProzessZuteilung p : zuteilungsSituation) { // prüfe jeden Prozess
+
+            // wähle den aktuellen Prozess
+            if (p.anzahlAktuellerRessourcen + anzahlFreieRessourcen >= p.maximaleAnzahlRessourcen) {
+
+                // neue Anzahl freier Ressourcen berechnen
+                int neueAnzahlFreieRessourcen = p.anzahlAktuellerRessourcen + anzahlFreieRessourcen;
+
+                // Prozess entfernen da fertig
+                zuteilungsSituation.remove(p);
+
+                printProcessTable(zuteilungsSituation, anzahlFreieRessourcen); // gebe Tabelle aus
+
+                // alle Prozesse konnten bearbeitet werden
+                if (zuteilungsSituation.isEmpty()) {
+                    return true;
+                } else {
+                    // es gibt noch unbeendete Prozesse
+                    return isSafe(zuteilungsSituation, neueAnzahlFreieRessourcen);
+                }
+
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Gibt die Liste der Prozesse als Tabelle aus
