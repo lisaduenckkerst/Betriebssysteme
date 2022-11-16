@@ -151,10 +151,9 @@ public class TestSafeStateChecker implements SafeStateChecker {
      * @param anzahlFreieRessourcen Anzahl der aktuell freien Ressourcen
      */
     public void printProcessTable(List<ProzessZuteilung> zuteilungsSituation, int anzahlFreieRessourcen) {
-        System.out.println("P" + "\t" + "Has" + "\t" + "Need");
-        for (ProzessZuteilung p : zuteilungsSituation) {
+        System.out.println("P" + "\tHas" + "\tNeed");
+        for (ProzessZuteilung p : zuteilungsSituation)
             System.out.println(p.prozessName + "\t" + p.anzahlAktuellerRessourcen + "\t" + p.maximaleAnzahlRessourcen);
-        }
         System.out.println("Frei: " + anzahlFreieRessourcen + "\n");
     }
 }
