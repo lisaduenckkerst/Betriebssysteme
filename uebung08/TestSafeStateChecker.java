@@ -37,9 +37,8 @@ public class TestSafeStateChecker implements SafeStateChecker {
      * @param zuteilungsSituation Liste mit der aktuellen Zuteilung aller Prozesse
      * @param anzahlFreieRessourcen Anzahl der aktuell freien Ressourcen
      */
-    public ProzessZuteilung chosenProcess(List<ProzessZuteilung> zuteilungsSituation, int anzahlFreieRessourcen) {
+    public ProzessZuteilung nextProcess(List<ProzessZuteilung> zuteilungsSituation, int anzahlFreieRessourcen) {
 
-        // iteriere durch die Liste
         for(ProzessZuteilung p : zuteilungsSituation) {
 
             // wenn der Prozess noch nicht beendet ist
@@ -49,10 +48,9 @@ public class TestSafeStateChecker implements SafeStateChecker {
                 // freier Ressourcen größer oder gleich der maximalen Anzahl Ressourcen ist,
                 // kann der Prozess beendet werden
                 if (p.anzahlAktuellerRessourcen + anzahlFreieRessourcen >= p.maximaleAnzahlRessourcen) {
+                    return p; // dann wähle diesen Prozess
 
-                    return p; // dann wähle den Prozess
-
-                } // sonst mache weiter
+                }
             }
         }
         return null; // Ansonsten gibt es keinen laufenden Prozess mehr
@@ -65,13 +63,10 @@ public class TestSafeStateChecker implements SafeStateChecker {
      * @return true, wenn alle Prozesse beendet werden konnten, sonst false
      */
     public boolean allProcessesAreTerminated(List<ProzessZuteilung> zuteilungsSituation) {
-
-        for (ProzessZuteilung p : zuteilungsSituation) { // prüfe jeden Prozess
-
+        for (ProzessZuteilung p : zuteilungsSituation) {
             if (p.anzahlAktuellerRessourcen != 0 && p.maximaleAnzahlRessourcen != 0)
                 return false; // es gibt mind. 1 Prozess, der nicht beendet ist
         }
-
         return true; // alle Prozesse konnten beendet werden
     }
 
@@ -88,7 +83,7 @@ public class TestSafeStateChecker implements SafeStateChecker {
         while (true) {
 
             // wähle den aktuellen Prozess
-            ProzessZuteilung p = chosenProcess(zuteilungsSituation, anzahlFreieRessourcen);
+            ProzessZuteilung p = nextProcess(zuteilungsSituation, anzahlFreieRessourcen);
 
             // wenn es noch gültige laufende Prozesse gibt
             if (p != null) {
@@ -104,11 +99,10 @@ public class TestSafeStateChecker implements SafeStateChecker {
             }
 
             // wenn es keine gültigen laufenden Prozesse mehr gibt
-            else if (allProcessesAreTerminated(zuteilungsSituation)) {
+            else if (allProcessesAreTerminated(zuteilungsSituation))
                 return true;
-            } else {
+            else
                 return false;
-            }
 
         }
     }
@@ -123,9 +117,10 @@ public class TestSafeStateChecker implements SafeStateChecker {
     public boolean isSafeRec(List<ProzessZuteilung> zuteilungsSituation, int anzahlFreieRessourcen){
         if (zuteilungsSituation.isEmpty())
             return true;
-        for (ProzessZuteilung p : zuteilungsSituation) { // prüfe jeden Prozess
 
-            // wähle den aktuellen Prozess
+        for (ProzessZuteilung p : zuteilungsSituation) {
+
+            // wähle den nächsten Prozess, der beendet werden kann
             if (p.anzahlAktuellerRessourcen + anzahlFreieRessourcen >= p.maximaleAnzahlRessourcen) {
 
                 // neue Anzahl freier Ressourcen berechnen
